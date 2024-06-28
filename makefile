@@ -11,14 +11,6 @@ help: ## Shows the help of the commands available
 build: ## Build de los contenedores
 	$(DOCKER_COMPOSE) build
 
-.PHONY: build-frontend
-build-frontend: ## Build de los contenedores
-	$(DOCKER_COMPOSE) build frontend
-
-.PHONY: build-backend
-build-backend: ## Build de los contenedores
-	$(DOCKER_COMPOSE) build backend
-
 .PHONY: up
 up: ## Start containers in the background
 	$(DOCKER_COMPOSE) up -d
@@ -40,6 +32,10 @@ clean: down ## Stop and delete containers and clean volumes and networks
 	$(DOCKER_COMPOSE) down --rmi all
 	$(DOCKER_COMPOSE) down --volumes --remove-orphans
 
+
+.PHONY: up-backend
+up-backend: ## Start backend container in the background
+	$(DOCKER_COMPOSE) up -d backend 
 
 # Set the default goal to be 'help'
 .DEFAULT_GOAL := help

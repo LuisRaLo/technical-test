@@ -1,25 +1,16 @@
 # Dockerfile para el backend en Go
-FROM golang:1.22 AS builder
-
-WORKDIR /backend
-
-# Instalar dependencias
-COPY go.mod go.sum ./
-RUN go mod download
-
-# Copiar el código
-COPY . .
-
-# Compilar la aplicación
-RUN go build -o main .
-
-# Imagen final mínima
-FROM alpine:latest
+FROM golang:1.22.4 AS builder
 
 WORKDIR /app
 
-# Copiar el ejecutable compilado
-COPY --from=builder /backend/main .
+COPY ./go.mod ./
 
-# Comando por defecto para ejecutar el backend
-CMD ["./main"]
+RUN go mod download
+
+COPY ./cmd ./cmd
+
+RUN GOOS=linux CGO_ENABLED=0 go build -o bootstrap ./cmd
+
+EXPOSE 8000
+
+CMD ["./backend"]
