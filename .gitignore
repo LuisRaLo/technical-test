@@ -1,1 +1,9 @@
 .DS_Store
+
+# ENV Files
+.env
+.env.*
+
+# Go binaries for programs and plugins
+bootstrap
+
