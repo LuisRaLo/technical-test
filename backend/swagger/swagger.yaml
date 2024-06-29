@@ -1,0 +1,142 @@
+basePath: /api/v1
+definitions:
+  domain.SellRequest:
+    properties:
+      name:
+        example: name
+        maxLength: 40
+        minLength: 3
+        type: string
+      price:
+        example: 1
+        maximum: 100000000
+        minimum: 0.0001
+        type: number
+      quantity:
+        example: 1
+        maximum: 10000
+        minimum: 1
+        type: integer
+    required:
+    - name
+    - price
+    - quantity
+    type: object
+  domain.SellResponse:
+    properties:
+      folio:
+        example: ""
+        format: string
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        format: uuid
+        type: string
+      mensaje:
+        example: Operación realizada con éxito
+        format: string
+        type: string
+    type: object
+  models.Response400WithResult:
+    properties:
+      folio:
+        example: ""
+        format: string
+        type: string
+      mensaje:
+        example: Operación realizada sin éxito
+        format: string
+        type: string
+      resultado:
+        example:
+        - Error en la petición
+        items:
+          format: string
+          type: string
+        type: array
+    type: object
+  models.Response404WithResult:
+    properties:
+      folio:
+        example: ""
+        format: string
+        type: string
+      mensaje:
+        example: Operación realizada con éxito
+        format: string
+        type: string
+      resultado:
+        example:
+        - No se encontró el recurso solicitado
+        items:
+          format: string
+          type: string
+        type: array
+    type: object
+  models.Response500WithResult:
+    properties:
+      folio:
+        example: ""
+        format: string
+        type: string
+      mensaje:
+        example: Operación fallida
+        format: string
+        type: string
+      resultado:
+        example:
+        - Error interno del servidor
+        items:
+          format: string
+          type: string
+        type: array
+    type: object
+host: 127.0.0.1:8080
+info:
+  contact:
+    email: luian.ramirez.12@gmail.com
+    name: Luis Enrique Ramírez López
+    url: http://www.swagger.io/support
+  description: REST API for the Technical Challenge
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Technical Challenge API
+  version: "1.0"
+paths:
+  /sell:
+    post:
+      consumes:
+      - application/json
+      description: Sell a bound
+      parameters:
+      - description: Sell Request
+        in: body
+        name: sellRequest
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SellRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.SellResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response400WithResult'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response404WithResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response500WithResult'
+      summary: Sell a bound
+      tags:
+      - Sell
+swagger: "2.0"
