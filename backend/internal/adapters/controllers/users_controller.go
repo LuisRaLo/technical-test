@@ -87,6 +87,18 @@ func (i *IUsersController) SingUp(ctx context.Context) http.HandlerFunc {
 }
 
 // GetUserByID implements repositories.UserController.
+// @Summary      Get user by ID
+// @Description  Get user by ID
+// @Tags         Users
+// @Accept       json
+// @Produce      json
+// @Param        user_id path string true "User ID"
+// @Success      200  {object} repositories.UserResponse200
+// @Failure      400  {object} models.Response400WithResult
+// @Failure      404  {object}  models.Response404WithResult
+// @Failure      500  {object}  models.Response500WithResult
+// @Router      /users/{user_id} [get]
+// @Security BearerAuth
 func (i *IUsersController) GetUserByID(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID := r.PathValue("user_id")
@@ -108,6 +120,17 @@ func (i *IUsersController) GetUserByID(ctx context.Context) http.HandlerFunc {
 }
 
 // GetUserByJWT implements repositories.UserController.
+// @Summary      Get user by JWT
+// @Description  Get user by JWT
+// @Tags         Users
+// @Accept       json
+// @Produce      json
+// @Success      200  {object} repositories.UserResponse200
+// @Failure      400  {object} models.Response400WithResult
+// @Failure      404  {object}  models.Response404WithResult
+// @Failure      500  {object}  models.Response500WithResult
+// @Router      /users/byJWT [get]
+// @Security BearerAuth
 func (i *IUsersController) GetUserByJWT() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var ctx context.Context = r.Context()

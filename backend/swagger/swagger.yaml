@@ -236,6 +236,70 @@ paths:
       summary: Create a user
       tags:
       - Users
+  /users/{user_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repositories.UserResponse200'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response400WithResult'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response404WithResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response500WithResult'
+      security:
+      - BearerAuth: []
+      summary: Get user by ID
+      tags:
+      - Users
+  /users/byJWT:
+    get:
+      consumes:
+      - application/json
+      description: Get user by JWT
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repositories.UserResponse200'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response400WithResult'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response404WithResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response500WithResult'
+      security:
+      - BearerAuth: []
+      summary: Get user by JWT
+      tags:
+      - Users
 securityDefinitions:
   BearerAuth:
     in: header
