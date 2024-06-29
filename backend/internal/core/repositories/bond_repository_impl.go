@@ -26,7 +26,6 @@ func NewBondRepository(
 		datasoruce: datasoruce,
 	}
 
-	//si os.Getenv("ENV")  es dev, test. local, etc
 	if os.Getenv("ENV") == "dev" || os.Getenv("ENV") == "local" {
 		logger.Info("Syncing database")
 		IBondRepository.SyncDatabase()
@@ -37,8 +36,7 @@ func NewBondRepository(
 
 // Función para sincronizar la base de datos ejecutando un archivo SQL.
 func (i *IBondRepository) SyncDatabase() {
-	// Leer el contenido del archivo SQL
-	var filepath string = "migrations/bonds.sql"
+	var filepath string = "test/migrations/bonds.sql"
 
 	file, err := os.Open(filepath)
 	if err != nil {
@@ -47,16 +45,13 @@ func (i *IBondRepository) SyncDatabase() {
 
 	defer file.Close()
 
-	// Read the content of the SQL file
 	content, err := io.ReadAll(file)
 	if err != nil {
 		i.Logger.Error("Error reading file")
 	}
 
-	//imprimir el contenido del archivo
 	i.Logger.Info(string(content))
 
-	// Ejecutar el contenido del archivo SQL
 	_, err = i.datasoruce.Exec(string(content))
 	if err != nil {
 		i.Logger.Error("Error executing SQL file. ", err)
@@ -75,26 +70,26 @@ func (i *IBondRepository) Exec(query string) {
 }
 
 // CreateBound implements repositories.BoundRepository.
-func (i *IBondRepository) CreateBound(bound *repositories.Bound) error {
+func (i *IBondRepository) CreateBound(bound repositories.Bound) error {
 	panic("unimplemented")
 }
 
 // DeleteBound implements repositories.BoundRepository.
-func (i *IBondRepository) DeleteBound(bound *repositories.Bound) error {
+func (i *IBondRepository) DeleteBound(bound repositories.Bound) error {
 	panic("unimplemented")
 }
 
 // GetAllBounds implements repositories.BoundRepository.
-func (i *IBondRepository) GetAllBounds() ([]*repositories.Bound, error) {
+func (i *IBondRepository) GetAllBounds() ([]repositories.Bound, error) {
 	panic("unimplemented")
 }
 
 // GetBoundByID implements repositories.BoundRepository.
-func (i *IBondRepository) GetBoundByID(id uuid.UUID) (*repositories.Bound, error) {
+func (i *IBondRepository) GetBoundByID(id uuid.UUID) (repositories.Bound, error) {
 	panic("unimplemented")
 }
 
 // UpdateBound implements repositories.BoundRepository.
-func (i *IBondRepository) UpdateBound(bound *repositories.Bound) error {
+func (i *IBondRepository) UpdateBound(bound repositories.Bound) error {
 	panic("unimplemented")
 }

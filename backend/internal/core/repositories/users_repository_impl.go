@@ -37,7 +37,7 @@ func NewUsersRepository(
 // Función para sincronizar la base de datos ejecutando un archivo SQL.
 func (i *IUsersRepository) SyncDatabase() {
 	// Leer el contenido del archivo SQL
-	var filepath string = "migrations/users.sql"
+	var filepath string = "test/migrations/users.sql"
 
 	file, err := os.Open(filepath)
 	if err != nil {
