@@ -6,42 +6,42 @@ import (
 	"technical-challenge/internal/core/domain"
 	"technical-challenge/internal/core/domain/constants"
 	"technical-challenge/internal/core/domain/models"
+	"technical-challenge/internal/core/domain/repositories"
 	"technical-challenge/internal/middlewares"
 	"technical-challenge/internal/utils"
 
 	"go.uber.org/zap"
 )
 
-type ISellController struct {
+type IUsersController struct {
 	Logger      *zap.SugaredLogger
-	SellUseCase domain.SellUseCase
+	UserUseCase repositories.UserUseCase
 }
 
-func NewSellController(
+func NewUsersController(
 	logger *zap.SugaredLogger,
-	sellUseCase domain.SellUseCase,
-) domain.SellController {
-	logger.Info("SellController created")
-	return &ISellController{
+	userUseCase repositories.UserUseCase,
+) repositories.UserController {
+	logger.Info("UsersController created")
+	return &IUsersController{
 		Logger:      logger,
-		SellUseCase: sellUseCase,
+		UserUseCase: userUseCase,
 	}
 }
 
-// Sell godoc
-// @Summary      Sell a bound
-// @Description  Sell a bound
-// @Tags         Sell
+// CreateUser implements repositories.UserController.
+// @Summary      Create a user
+// @Description  Create a user
+// @Tags         Users
 // @Accept       json
 // @Produce      json
-// @Param        sellRequest body domain.SellRequest true "Sell Request"
-// @Success      200  {object}  domain.SellResponse
+
 // @Failure      400  {object} models.Response400WithResult
 // @Failure      404  {object}  models.Response404WithResult
 // @Failure      500  {object}  models.Response500WithResult
-// @Router      /sell [post]
-// @Security BearerAuth
-func (i *ISellController) Sell() http.HandlerFunc {
+// @Router      /users [post]
+
+func (i *IUsersController) CreateUser() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var ctx context.Context = r.Context()
 		var payload domain.SellRequest = domain.SellRequest{}
@@ -59,8 +59,22 @@ func (i *ISellController) Sell() http.HandlerFunc {
 			return
 		}
 
-		var run models.DevResponse = i.SellUseCase.Sell(userData.TokenData.UID, payload)
-		utils.Response(w, run)
+		//var run models.DevResponse = i.SellUseCase.Sell(userData.TokenData.UID, payload)
+		utils.Response(w, models.DevResponse{
+			StatusCode: http.StatusOK,
+			Response: models.ResponseWithResult{
+				Result: userData,
+			},
+		})
 	}
+}
 
+// GetUserByEmail implements repositories.UserController.
+func (i *IUsersController) GetUserByEmail() http.HandlerFunc {
+	panic("unimplemented")
+}
+
+// GetUserByID implements repositories.UserController.
+func (i *IUsersController) GetUserByID() http.HandlerFunc {
+	panic("unimplemented")
 }

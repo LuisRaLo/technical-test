@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"log"
 	"net/http"
 
 	"technical-challenge/internal/adapters/controllers"
 	"technical-challenge/internal/core/application"
+	"technical-challenge/internal/core/datasources"
 	"technical-challenge/internal/core/domain"
+	"technical-challenge/internal/core/domain/repositories"
 	repositoriesImpl "technical-challenge/internal/core/repositories"
 	"technical-challenge/internal/middlewares"
 
@@ -51,25 +54,44 @@ func main() {
 	var mux *http.ServeMux = http.NewServeMux()
 	var ctx context.Context = context.Background()
 
+	//DATASOURCES
+	var database1Connection *sql.DB = datasources.Database1Connection(logger)
+
 	//REPOSITORIES
+	usersRepository := repositoriesImpl.NewUsersRepository(logger, database1Connection)
+	bondRepository := repositoriesImpl.NewBondRepository(logger, database1Connection)
 
 	//USE CASES
-	var sellUseCase domain.SellUseCase = application.NewSellUseCase(logger)
+	var sellUseCase domain.SellUseCase = application.NewSellUseCase(logger, bondRepository)
+	var usersUseCase repositories.UserUseCase = application.NewUsersUseCase(logger, usersRepository)
 
 	//CONTROLLERS
 	var sellController domain.SellController = controllers.NewSellController(logger, sellUseCase)
+	var usersController repositories.UserController = controllers.NewUsersController(logger, usersUseCase)
 
 	//ROUTES
-	setupRoutes(ctx, logger, mux, sellController)
+	setupRoutes(ctx, logger, mux, sellController, usersController)
 
 	//SERVER
 	logger.Info("Server running on port 8080")
-	http.ListenAndServe(":8080", mux)
+	err = http.ListenAndServe(":8080", mux)
+	if err != nil {
+		logger.Error("Error starting server")
+	}
+
+	defer datasources.CloseDB(database1Connection, logger)
+	defer logger.Sync()
 
 }
 
 // Configurar rutas
-func setupRoutes(ctx context.Context, logger *zap.SugaredLogger, router *http.ServeMux, sellController domain.SellController) {
+func setupRoutes(
+	ctx context.Context,
+	logger *zap.SugaredLogger,
+	router *http.ServeMux,
+	sellController domain.SellController,
+	usersController repositories.UserController,
+) {
 	//usersEndpointPath := os.Getenv("USERS_ENDPOINT_PATH")
 
 	//MIDDLEWARES
@@ -85,5 +107,8 @@ func setupRoutes(ctx context.Context, logger *zap.SugaredLogger, router *http.Se
 		authorizerMiddleware.Authorizer(sellController.Sell()).ServeHTTP(w, r)
 	})
 	logger.Info("POST /api/v1/sell endpoint created")
+
+	router.HandleFunc("POST /api/v1/users", usersController.CreateUser())
+	logger.Info("POST /api/v1/users endpoint created")
 
 }

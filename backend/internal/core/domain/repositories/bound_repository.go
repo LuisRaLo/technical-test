@@ -13,4 +13,12 @@ type (
 		UpdatedAt int64     `json:"updated_at" example:"1618312800"`
 		DeleteAt  int64     `json:"delete_at" example:"1618312800"`
 	}
+
+	BoundRepository interface {
+		CreateBound(bound *Bound) error
+		UpdateBound(bound *Bound) error
+		DeleteBound(bound *Bound) error
+		GetBoundByID(id uuid.UUID) (*Bound, error)
+		GetAllBounds() ([]*Bound, error)
+	}
 )

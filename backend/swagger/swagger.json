@@ -113,15 +113,23 @@
                     "format": "string",
                     "example": ""
                 },
-                "id": {
-                    "type": "string",
-                    "format": "uuid",
-                    "example": "550e8400-e29b-41d4-a716-446655440000"
-                },
                 "mensaje": {
                     "type": "string",
                     "format": "string",
                     "example": "Operación realizada con éxito"
+                },
+                "resultado": {
+                    "$ref": "#/definitions/domain.SellResponseResult"
+                }
+            }
+        },
+        "domain.SellResponseResult": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 }
             }
         },

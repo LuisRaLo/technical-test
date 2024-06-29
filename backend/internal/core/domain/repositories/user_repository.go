@@ -1,6 +1,11 @@
 package repositories
 
-import "github.com/google/uuid"
+import (
+	"net/http"
+	"technical-challenge/internal/core/domain/models"
+
+	"github.com/google/uuid"
+)
 
 type (
 	User struct {
@@ -9,5 +14,23 @@ type (
 		CreatedAt int64     `json:"created_at" example:"1618312800"`
 		UpdatedAt int64     `json:"updated_at" example:"1618312800"`
 		DeleteAt  int64     `json:"delete_at" example:"1618312800"`
+	}
+
+	UsersRepository interface {
+		CreateUser(user *User) error
+		GetUserByID(id uuid.UUID) (*User, error)
+		GetUserByEmail(email string) (*User, error)
+	}
+
+	UserUseCase interface {
+		CreateUser(user *User) models.DevResponse
+		GetUserByID(id uuid.UUID) models.DevResponse
+		GetUserByEmail(email string) models.DevResponse
+	}
+
+	UserController interface {
+		CreateUser() http.HandlerFunc
+		GetUserByID() http.HandlerFunc
+		GetUserByEmail() http.HandlerFunc
 	}
 )

@@ -37,5 +37,9 @@ clean: down ## Stop and delete containers and clean volumes and networks
 up-backend: ## Start backend container in the background
 	$(DOCKER_COMPOSE) up -d backend 
 
+.PHONY: up-db
+up-db: ## Start db container in the background
+	$(DOCKER_COMPOSE) up -d db
+
 # Set the default goal to be 'help'
 .DEFAULT_GOAL := help

@@ -7,7 +7,7 @@ import (
 
 type (
 	SellUseCase interface {
-		Sell(request SellRequest) models.DevResponse
+		Sell(useID string, request SellRequest) models.DevResponse
 	}
 
 	SellController interface {
@@ -20,9 +20,12 @@ type (
 		Price    float64 `json:"price" example:"1.0" validate:"required,min=0.0001,max=100000000.0000"`
 	}
 
+	SellResponseResult struct {
+		ID string `json:"id" example:"550e8400-e29b-41d4-a716-446655440000" format:"uuid"`
+	}
 	SellResponse struct {
 		*models.Response
-		ID string `json:"id" example:"550e8400-e29b-41d4-a716-446655440000" format:"uuid"`
+		Result SellResponseResult `json:"resultado"`
 	}
 
 	SellError struct {

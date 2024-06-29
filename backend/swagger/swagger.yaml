@@ -28,13 +28,18 @@ definitions:
         example: ""
         format: string
         type: string
-      id:
-        example: 550e8400-e29b-41d4-a716-446655440000
-        format: uuid
-        type: string
       mensaje:
         example: Operación realizada con éxito
         format: string
+        type: string
+      resultado:
+        $ref: '#/definitions/domain.SellResponseResult'
+    type: object
+  domain.SellResponseResult:
+    properties:
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        format: uuid
         type: string
     type: object
   models.Response400WithResult:
