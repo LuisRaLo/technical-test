@@ -74,6 +74,58 @@
                     }
                 }
             }
+        },
+        "/users": {
+            "post": {
+                "description": "Create a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Create a user",
+                "parameters": [
+                    {
+                        "description": "User object that needs to be created",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/repositories.CreateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/repositories.Response200CreateUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response400WithResult"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response404WithResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response500WithResult"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -205,6 +257,85 @@
                     "type": "string",
                     "format": "string",
                     "example": "Operación fallida"
+                }
+            }
+        },
+        "repositories.CreateUserRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password",
+                "retyped_password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 255,
+                    "example": "email@email.com"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "name"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "password "
+                },
+                "retyped_password": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "password"
+                }
+            }
+        },
+        "repositories.Response200CreateUser": {
+            "type": "object",
+            "properties": {
+                "folio": {
+                    "type": "string",
+                    "format": "string",
+                    "example": ""
+                },
+                "mensaje": {
+                    "type": "string",
+                    "format": "string",
+                    "example": "Operación realizada con éxito"
+                },
+                "result": {
+                    "$ref": "#/definitions/repositories.User"
+                }
+            }
+        },
+        "repositories.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "integer",
+                    "example": 1618312800
+                },
+                "delete_at": {
+                    "type": "integer",
+                    "example": 1618312800
+                },
+                "email": {
+                    "type": "string",
+                    "example": "email@email.com"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "name"
+                },
+                "updated_at": {
+                    "type": "integer",
+                    "example": 1618312800
                 }
             }
         }

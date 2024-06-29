@@ -4,6 +4,7 @@ CREATE TABLE
     IF NOT EXISTS users.users (
         id varchar(255) PRIMARY KEY NOT NULL,
         email VARCHAR(255) NOT NULL,
+        name VARCHAR(255) NOT NULL,
         created_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL,
         deleted_at INTEGER

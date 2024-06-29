@@ -3,11 +3,9 @@ package controllers
 import (
 	"context"
 	"net/http"
-	"technical-challenge/internal/core/domain"
 	"technical-challenge/internal/core/domain/constants"
 	"technical-challenge/internal/core/domain/models"
 	"technical-challenge/internal/core/domain/repositories"
-	"technical-challenge/internal/middlewares"
 	"technical-challenge/internal/utils"
 
 	"go.uber.org/zap"
@@ -35,19 +33,17 @@ func NewUsersController(
 // @Tags         Users
 // @Accept       json
 // @Produce      json
-
+// @Param        user body repositories.CreateUserRequest true "User object that needs to be created"
+// @Success      200  {object} repositories.Response200CreateUser
 // @Failure      400  {object} models.Response400WithResult
 // @Failure      404  {object}  models.Response404WithResult
 // @Failure      500  {object}  models.Response500WithResult
 // @Router      /users [post]
-
-func (i *IUsersController) CreateUser() http.HandlerFunc {
+func (i *IUsersController) CreateUser(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var ctx context.Context = r.Context()
-		var payload domain.SellRequest = domain.SellRequest{}
-		var userData utils.ResultFirebase = middlewares.GetUserDataFromContext(ctx)
+		var createUserRequest repositories.CreateUserRequest = repositories.CreateUserRequest{}
 
-		errors := utils.ValidateBody(w, r, &payload, i.Logger)
+		errors := utils.ValidateBody(w, r, &createUserRequest, i.Logger)
 		if len(errors) > 0 {
 			utils.Response(w, models.DevResponse{
 				StatusCode: http.StatusBadRequest,
@@ -59,13 +55,33 @@ func (i *IUsersController) CreateUser() http.HandlerFunc {
 			return
 		}
 
-		//var run models.DevResponse = i.SellUseCase.Sell(userData.TokenData.UID, payload)
-		utils.Response(w, models.DevResponse{
-			StatusCode: http.StatusOK,
-			Response: models.ResponseWithResult{
-				Result: userData,
-			},
-		})
+		emailValidation := utils.ValidateEmail(createUserRequest.Email)
+		if len(emailValidation) > 0 {
+			utils.Response(w, models.DevResponse{
+				StatusCode: http.StatusBadRequest,
+				Response: models.Response400WithResult{
+					Message: constants.REQUEST_INVALID,
+					Details: []string{emailValidation},
+				},
+			})
+			return
+		}
+
+		passwordValidation := utils.ValidatePassword(createUserRequest.Password, createUserRequest.RetypedPassword)
+		if len(passwordValidation) > 0 {
+			utils.Response(w, models.DevResponse{
+				StatusCode: http.StatusBadRequest,
+				Response: models.Response400WithResult{
+					Message: constants.REQUEST_INVALID,
+					Details: []string{passwordValidation},
+				},
+			})
+			return
+		}
+
+		var run models.DevResponse = i.UserUseCase.CreateUser(ctx, createUserRequest)
+
+		utils.Response(w, run)
 	}
 }
 

@@ -96,6 +96,65 @@ definitions:
         format: string
         type: string
     type: object
+  repositories.CreateUserRequest:
+    properties:
+      email:
+        example: email@email.com
+        format: email
+        maxLength: 255
+        type: string
+      name:
+        example: name
+        maxLength: 255
+        type: string
+      password:
+        example: 'password '
+        minLength: 6
+        type: string
+      retyped_password:
+        example: password
+        minLength: 6
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - retyped_password
+    type: object
+  repositories.Response200CreateUser:
+    properties:
+      folio:
+        example: ""
+        format: string
+        type: string
+      mensaje:
+        example: Operación realizada con éxito
+        format: string
+        type: string
+      result:
+        $ref: '#/definitions/repositories.User'
+    type: object
+  repositories.User:
+    properties:
+      created_at:
+        example: 1618312800
+        type: integer
+      delete_at:
+        example: 1618312800
+        type: integer
+      email:
+        example: email@email.com
+        type: string
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+      name:
+        example: name
+        type: string
+      updated_at:
+        example: 1618312800
+        type: integer
+    type: object
 host: 127.0.0.1:8080
 info:
   contact:
@@ -146,6 +205,40 @@ paths:
       summary: Sell a bound
       tags:
       - Sell
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Create a user
+      parameters:
+      - description: User object that needs to be created
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/repositories.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repositories.Response200CreateUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response400WithResult'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response404WithResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response500WithResult'
+      summary: Create a user
+      tags:
+      - Users
 securityDefinitions:
   BearerAuth:
     in: header

@@ -75,16 +75,67 @@ func (i *IUsersRepository) Exec(query string) {
 }
 
 // CreateUser implements repositories.UsersRepository.
-func (i *IUsersRepository) CreateUser(user *repositories.User) error {
-	panic("unimplemented")
+func (i *IUsersRepository) CreateUser(user *repositories.User) int {
+
+	query := `INSERT INTO users.users (id, email, name, created_at, updated_at, deleted_at) VALUES ($1, $2, $3, $4, $5, $6);`
+	result, err := i.datasoruce.Exec(query, user.ID, user.Email, user.Name, user.CreatedAt, user.UpdatedAt, user.DeleteAt)
+	if err != nil {
+		i.Logger.Error("Error executing query. ", err)
+		return 0
+	}
+	r, err := result.RowsAffected()
+	if err != nil {
+		i.Logger.Error("Error executing query. ", err)
+	}
+	return int(r)
+
 }
 
 // GetUserByEmail implements repositories.UsersRepository.
 func (i *IUsersRepository) GetUserByEmail(email string) (*repositories.User, error) {
-	panic("unimplemented")
+	query := "SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.deleted_at FROM users.users AS u WHERE email = $1;"
+	rows, err := i.datasoruce.Query(query, email)
+	if err != nil {
+		i.Logger.Error("Error executing query. ", err)
+	}
+	defer rows.Close()
+	var user repositories.User
+	for rows.Next() {
+		err = rows.Scan(&user.ID, &user.Email, &user.Name, &user.CreatedAt, &user.UpdatedAt, &user.DeleteAt)
+		if err != nil {
+			i.Logger.Error("Error scanning row. ", err)
+		}
+	}
+	return &user, nil
+
 }
 
 // GetUserByID implements repositories.UsersRepository.
 func (i *IUsersRepository) GetUserByID(id uuid.UUID) (*repositories.User, error) {
-	panic("unimplemented")
+	query := "SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.deleted_at FROM users.users AS u WHERE id = $1;"
+	rows, err := i.datasoruce.Query(query, id)
+	if err != nil {
+		i.Logger.Error("Error executing query. ", err)
+	}
+	defer rows.Close()
+	var user repositories.User
+	for rows.Next() {
+		err = rows.Scan(&user.ID, &user.Email, &user.Name, &user.CreatedAt, &user.UpdatedAt, &user.DeleteAt)
+		if err != nil {
+			i.Logger.Error("Error scanning row. ", err)
+		}
+	}
+	return &user, nil
+}
+
+// isEmailAlreadyInUse implements repositories.UsersRepository.
+func (i *IUsersRepository) IsEmailAlreadyInUse(email string) bool {
+	query := "SELECT u.id FROM users.users AS u WHERE EXISTS (SELECT id FROM users.users WHERE email = $1);"
+	rows, err := i.datasoruce.Query(query, email)
+	if err != nil {
+		i.Logger.Error("Error executing query. ", err)
+	}
+	defer rows.Close()
+	return rows.Next()
+
 }

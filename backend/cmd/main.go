@@ -13,6 +13,7 @@ import (
 	"technical-challenge/internal/core/domain/repositories"
 	repositoriesImpl "technical-challenge/internal/core/repositories"
 	"technical-challenge/internal/middlewares"
+	"technical-challenge/internal/utils"
 
 	"technical-challenge/swagger"
 
@@ -56,6 +57,10 @@ func main() {
 
 	//DATASOURCES
 	var database1Connection *sql.DB = datasources.Database1Connection(logger)
+	firebaseConnection, err := utils.GetFirebaseSession(ctx, logger)
+	if err != nil {
+		logger.Error("Error getting firebase session")
+	}
 
 	//REPOSITORIES
 	usersRepository := repositoriesImpl.NewUsersRepository(logger, database1Connection)
@@ -63,7 +68,7 @@ func main() {
 
 	//USE CASES
 	var sellUseCase domain.SellUseCase = application.NewSellUseCase(logger, bondRepository)
-	var usersUseCase repositories.UserUseCase = application.NewUsersUseCase(logger, usersRepository)
+	var usersUseCase repositories.UserUseCase = application.NewUsersUseCase(logger, usersRepository, firebaseConnection)
 
 	//CONTROLLERS
 	var sellController domain.SellController = controllers.NewSellController(logger, sellUseCase)
@@ -108,7 +113,7 @@ func setupRoutes(
 	})
 	logger.Info("POST /api/v1/sell endpoint created")
 
-	router.HandleFunc("POST /api/v1/users", usersController.CreateUser())
+	router.HandleFunc("POST /api/v1/users", usersController.CreateUser(ctx))
 	logger.Info("POST /api/v1/users endpoint created")
 
 }
