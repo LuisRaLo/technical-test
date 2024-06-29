@@ -2,16 +2,20 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
+
 	"technical-challenge/internal/adapters/controllers"
 	"technical-challenge/internal/core/application"
 	"technical-challenge/internal/core/domain"
-	"technical-challenge/swagger"
+	repositoriesImpl "technical-challenge/internal/core/repositories"
+	"technical-challenge/internal/middlewares"
 
-	repositoriesImpl "technical-challenge/internal/adapters/repositories"
+	"technical-challenge/swagger"
 
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 
+	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 )
 
@@ -29,7 +33,16 @@ import (
 
 // @host 127.0.0.1:8080
 // @BasePath /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file => ", err)
+	}
+
 	logger, err := repositoriesImpl.NewLogger()
 	if err != nil {
 		logger.Error("Error creating logger")
@@ -59,14 +72,18 @@ func main() {
 func setupRoutes(ctx context.Context, logger *zap.SugaredLogger, router *http.ServeMux, sellController domain.SellController) {
 	//usersEndpointPath := os.Getenv("USERS_ENDPOINT_PATH")
 
-	router.HandleFunc("POST /api/v1/sell", sellController.Sell())
-	logger.Info("POST /api/v1/sell endpoint created")
+	//MIDDLEWARES
+	var authorizerMiddleware *middlewares.AuthorizerMiddleware = middlewares.NewAuthorizerMiddleware(logger)
 
 	//swagger
-	swagger.SwaggerInfo.Title = "Swagger Technical Challenge API"
-	swagger.SwaggerInfo.Description = "This is a sample server Petstore server."
+	swagger.SwaggerInfo.Schemes = []string{"http", "https"}
 	router.HandleFunc("GET /swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("/swagger/doc.json"), //The url pointing to API definition
 	))
+
+	router.HandleFunc("POST /api/v1/sell", func(w http.ResponseWriter, r *http.Request) {
+		authorizerMiddleware.Authorizer(sellController.Sell()).ServeHTTP(w, r)
+	})
+	logger.Info("POST /api/v1/sell endpoint created")
 
 }

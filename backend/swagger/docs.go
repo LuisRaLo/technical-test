@@ -26,6 +26,11 @@ const docTemplate = `{
     "paths": {
         "/sell": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Sell a bound",
                 "consumes": [
                     "application/json"
@@ -129,6 +134,16 @@ const docTemplate = `{
         "models.Response400WithResult": {
             "type": "object",
             "properties": {
+                "detalles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "format": "string"
+                    },
+                    "example": [
+                        "Error en la petición"
+                    ]
+                },
                 "folio": {
                     "type": "string",
                     "format": "string",
@@ -138,22 +153,22 @@ const docTemplate = `{
                     "type": "string",
                     "format": "string",
                     "example": "Operación realizada sin éxito"
-                },
-                "resultado": {
-                    "type": "array",
-                    "items": {
-                        "type": "string",
-                        "format": "string"
-                    },
-                    "example": [
-                        "Error en la petición"
-                    ]
                 }
             }
         },
         "models.Response404WithResult": {
             "type": "object",
             "properties": {
+                "detalles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "format": "string"
+                    },
+                    "example": [
+                        "No se encontró el recurso solicitado"
+                    ]
+                },
                 "folio": {
                     "type": "string",
                     "format": "string",
@@ -163,22 +178,22 @@ const docTemplate = `{
                     "type": "string",
                     "format": "string",
                     "example": "Operación realizada con éxito"
-                },
-                "resultado": {
-                    "type": "array",
-                    "items": {
-                        "type": "string",
-                        "format": "string"
-                    },
-                    "example": [
-                        "No se encontró el recurso solicitado"
-                    ]
                 }
             }
         },
         "models.Response500WithResult": {
             "type": "object",
             "properties": {
+                "detalles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "format": "string"
+                    },
+                    "example": [
+                        "Error interno del servidor"
+                    ]
+                },
                 "folio": {
                     "type": "string",
                     "format": "string",
@@ -188,18 +203,15 @@ const docTemplate = `{
                     "type": "string",
                     "format": "string",
                     "example": "Operación fallida"
-                },
-                "resultado": {
-                    "type": "array",
-                    "items": {
-                        "type": "string",
-                        "format": "string"
-                    },
-                    "example": [
-                        "Error interno del servidor"
-                    ]
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

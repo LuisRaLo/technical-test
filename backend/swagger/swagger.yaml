@@ -39,6 +39,13 @@ definitions:
     type: object
   models.Response400WithResult:
     properties:
+      detalles:
+        example:
+        - Error en la petición
+        items:
+          format: string
+          type: string
+        type: array
       folio:
         example: ""
         format: string
@@ -47,16 +54,16 @@ definitions:
         example: Operación realizada sin éxito
         format: string
         type: string
-      resultado:
+    type: object
+  models.Response404WithResult:
+    properties:
+      detalles:
         example:
-        - Error en la petición
+        - No se encontró el recurso solicitado
         items:
           format: string
           type: string
         type: array
-    type: object
-  models.Response404WithResult:
-    properties:
       folio:
         example: ""
         format: string
@@ -65,16 +72,16 @@ definitions:
         example: Operación realizada con éxito
         format: string
         type: string
-      resultado:
+    type: object
+  models.Response500WithResult:
+    properties:
+      detalles:
         example:
-        - No se encontró el recurso solicitado
+        - Error interno del servidor
         items:
           format: string
           type: string
         type: array
-    type: object
-  models.Response500WithResult:
-    properties:
       folio:
         example: ""
         format: string
@@ -83,13 +90,6 @@ definitions:
         example: Operación fallida
         format: string
         type: string
-      resultado:
-        example:
-        - Error interno del servidor
-        items:
-          format: string
-          type: string
-        type: array
     type: object
 host: 127.0.0.1:8080
 info:
@@ -136,7 +136,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response500WithResult'
+      security:
+      - BearerAuth: []
       summary: Sell a bound
       tags:
       - Sell
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

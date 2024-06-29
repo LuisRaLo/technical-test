@@ -38,6 +38,7 @@ func NewSellController(
 // @Failure      404  {object}  models.Response404WithResult
 // @Failure      500  {object}  models.Response500WithResult
 // @Router      /sell [post]
+// @Security BearerAuth
 func (i *ISellController) Sell() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var payload domain.SellRequest = domain.SellRequest{}
