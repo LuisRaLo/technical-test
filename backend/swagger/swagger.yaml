@@ -96,7 +96,7 @@ definitions:
         format: string
         type: string
     type: object
-  repositories.CreateUserRequest:
+  repositories.SignUpRequest:
     properties:
       email:
         example: email@email.com
@@ -121,25 +121,9 @@ definitions:
     - password
     - retyped_password
     type: object
-  repositories.Response200CreateUser:
-    properties:
-      folio:
-        example: ""
-        format: string
-        type: string
-      mensaje:
-        example: Operación realizada con éxito
-        format: string
-        type: string
-      result:
-        $ref: '#/definitions/repositories.User'
-    type: object
-  repositories.User:
+  repositories.UserModel:
     properties:
       created_at:
-        example: 1618312800
-        type: integer
-      delete_at:
         example: 1618312800
         type: integer
       email:
@@ -154,6 +138,19 @@ definitions:
       updated_at:
         example: 1618312800
         type: integer
+    type: object
+  repositories.UserResponse200:
+    properties:
+      folio:
+        example: ""
+        format: string
+        type: string
+      mensaje:
+        example: Operación realizada con éxito
+        format: string
+        type: string
+      result:
+        $ref: '#/definitions/repositories.UserModel'
     type: object
 host: 127.0.0.1:8080
 info:
@@ -216,14 +213,14 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/repositories.CreateUserRequest'
+          $ref: '#/definitions/repositories.SignUpRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/repositories.Response200CreateUser'
+            $ref: '#/definitions/repositories.UserResponse200'
         "400":
           description: Bad Request
           schema:

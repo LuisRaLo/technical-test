@@ -10,7 +10,6 @@ import (
 
 	"firebase.google.com/go/auth"
 
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -34,7 +33,7 @@ func NewUsersUseCase(
 }
 
 // CreateUser implements repositories.UserUseCase.
-func (i *IUsersUseCase) CreateUser(ctx context.Context, user repositories.CreateUserRequest) models.DevResponse {
+func (i *IUsersUseCase) CreateUser(ctx context.Context, user repositories.SignUpRequest) models.DevResponse {
 	i.Logger.Info("Creating user with payload: ", user)
 
 	isEmailInUse := i.usersRepository.IsEmailAlreadyInUse(user.Email)
@@ -94,26 +93,65 @@ func (i *IUsersUseCase) CreateUser(ctx context.Context, user repositories.Create
 		}
 	}
 
-	response200CreateUser := repositories.Response200CreateUser{
+	response200CreateUser := repositories.UserResponse200{
 		Response: &models.Response{
 			Message: "User created",
 		},
-		Result: userModel,
+		Result: repositories.UserModel{
+			ID:        userModel.ID,
+			Email:     userModel.Email,
+			Name:      userModel.Name,
+			CreatedAt: userModel.CreatedAt,
+			UpdatedAt: userModel.UpdatedAt,
+		},
 	}
 
 	return models.DevResponse{
 		StatusCode: http.StatusOK,
 		Response:   response200CreateUser,
 	}
-
-}
-
-// GetUserByEmail implements repositories.UserUseCase.
-func (i *IUsersUseCase) GetUserByEmail(email string) models.DevResponse {
-	panic("unimplemented")
 }
 
 // GetUserByID implements repositories.UserUseCase.
-func (i *IUsersUseCase) GetUserByID(id uuid.UUID) models.DevResponse {
-	panic("unimplemented")
+func (i *IUsersUseCase) GetUserByID(ctx context.Context, id string) models.DevResponse {
+	i.Logger.Info("Getting user by ID: ", id)
+
+	user, err := i.usersRepository.GetUserByID(id)
+	if err != nil {
+		i.Logger.Error("Error getting user by ID")
+		return models.DevResponse{
+			StatusCode: http.StatusInternalServerError,
+			Response: models.Response500WithResult{
+				Message: "Error getting user by ID",
+			},
+		}
+	}
+
+	if user.ID == "" {
+		return models.DevResponse{
+			StatusCode: http.StatusNotFound,
+			Response: models.Response404WithResult{
+				Message: constants.REQUEST_USER_NOT_FOUND,
+				Details: []string{"User not found"},
+			},
+		}
+	}
+
+	response200GetUserByID := repositories.UserResponse200{
+		Response: &models.Response{
+			Message: "User found",
+		},
+		Result: repositories.UserModel{
+			ID:        user.ID,
+			Email:     user.Email,
+			Name:      user.Name,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+		},
+	}
+
+	return models.DevResponse{
+		StatusCode: http.StatusOK,
+		Response:   response200GetUserByID,
+	}
 }

@@ -101,7 +101,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/repositories.CreateUserRequest"
+                            "$ref": "#/definitions/repositories.SignUpRequest"
                         }
                     }
                 ],
@@ -109,7 +109,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/repositories.Response200CreateUser"
+                            "$ref": "#/definitions/repositories.UserResponse200"
                         }
                     },
                     "400": {
@@ -266,7 +266,7 @@ const docTemplate = `{
                 }
             }
         },
-        "repositories.CreateUserRequest": {
+        "repositories.SignUpRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -298,32 +298,10 @@ const docTemplate = `{
                 }
             }
         },
-        "repositories.Response200CreateUser": {
-            "type": "object",
-            "properties": {
-                "folio": {
-                    "type": "string",
-                    "format": "string",
-                    "example": ""
-                },
-                "mensaje": {
-                    "type": "string",
-                    "format": "string",
-                    "example": "Operación realizada con éxito"
-                },
-                "result": {
-                    "$ref": "#/definitions/repositories.User"
-                }
-            }
-        },
-        "repositories.User": {
+        "repositories.UserModel": {
             "type": "object",
             "properties": {
                 "created_at": {
-                    "type": "integer",
-                    "example": 1618312800
-                },
-                "delete_at": {
                     "type": "integer",
                     "example": 1618312800
                 },
@@ -342,6 +320,24 @@ const docTemplate = `{
                 "updated_at": {
                     "type": "integer",
                     "example": 1618312800
+                }
+            }
+        },
+        "repositories.UserResponse200": {
+            "type": "object",
+            "properties": {
+                "folio": {
+                    "type": "string",
+                    "format": "string",
+                    "example": ""
+                },
+                "mensaje": {
+                    "type": "string",
+                    "format": "string",
+                    "example": "Operación realizada con éxito"
+                },
+                "result": {
+                    "$ref": "#/definitions/repositories.UserModel"
                 }
             }
         }

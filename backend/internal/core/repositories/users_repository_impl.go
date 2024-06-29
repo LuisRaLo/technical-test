@@ -6,7 +6,6 @@ import (
 	"os"
 	"technical-challenge/internal/core/domain/repositories"
 
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -63,7 +62,6 @@ func (i *IUsersRepository) SyncDatabase() {
 	}
 
 	i.Logger.Info("Database synced")
-
 }
 
 // Exec
@@ -91,41 +89,25 @@ func (i *IUsersRepository) CreateUser(user *repositories.User) int {
 
 }
 
-// GetUserByEmail implements repositories.UsersRepository.
-func (i *IUsersRepository) GetUserByEmail(email string) (*repositories.User, error) {
-	query := "SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.deleted_at FROM users.users AS u WHERE email = $1;"
-	rows, err := i.datasoruce.Query(query, email)
-	if err != nil {
-		i.Logger.Error("Error executing query. ", err)
-	}
-	defer rows.Close()
-	var user repositories.User
-	for rows.Next() {
-		err = rows.Scan(&user.ID, &user.Email, &user.Name, &user.CreatedAt, &user.UpdatedAt, &user.DeleteAt)
-		if err != nil {
-			i.Logger.Error("Error scanning row. ", err)
-		}
-	}
-	return &user, nil
-
-}
-
 // GetUserByID implements repositories.UsersRepository.
-func (i *IUsersRepository) GetUserByID(id uuid.UUID) (*repositories.User, error) {
+func (i *IUsersRepository) GetUserByID(id string) (repositories.User, error) {
 	query := "SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.deleted_at FROM users.users AS u WHERE id = $1;"
 	rows, err := i.datasoruce.Query(query, id)
 	if err != nil {
 		i.Logger.Error("Error executing query. ", err)
 	}
 	defer rows.Close()
+
 	var user repositories.User
 	for rows.Next() {
-		err = rows.Scan(&user.ID, &user.Email, &user.Name, &user.CreatedAt, &user.UpdatedAt, &user.DeleteAt)
+		err := rows.Scan(&user.ID, &user.Email, &user.Name, &user.CreatedAt, &user.UpdatedAt, &user.DeleteAt)
 		if err != nil {
 			i.Logger.Error("Error scanning row. ", err)
 		}
 	}
-	return &user, nil
+
+	return user, nil
+
 }
 
 // isEmailAlreadyInUse implements repositories.UsersRepository.

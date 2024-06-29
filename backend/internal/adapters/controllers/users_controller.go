@@ -6,6 +6,7 @@ import (
 	"technical-challenge/internal/core/domain/constants"
 	"technical-challenge/internal/core/domain/models"
 	"technical-challenge/internal/core/domain/repositories"
+	"technical-challenge/internal/middlewares"
 	"technical-challenge/internal/utils"
 
 	"go.uber.org/zap"
@@ -33,17 +34,17 @@ func NewUsersController(
 // @Tags         Users
 // @Accept       json
 // @Produce      json
-// @Param        user body repositories.CreateUserRequest true "User object that needs to be created"
-// @Success      200  {object} repositories.Response200CreateUser
+// @Param        user body repositories.SignUpRequest true "User object that needs to be created"
+// @Success      200  {object} repositories.UserResponse200
 // @Failure      400  {object} models.Response400WithResult
 // @Failure      404  {object}  models.Response404WithResult
 // @Failure      500  {object}  models.Response500WithResult
 // @Router      /users [post]
-func (i *IUsersController) CreateUser(ctx context.Context) http.HandlerFunc {
+func (i *IUsersController) SingUp(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var createUserRequest repositories.CreateUserRequest = repositories.CreateUserRequest{}
+		var signupRequest repositories.SignUpRequest = repositories.SignUpRequest{}
 
-		errors := utils.ValidateBody(w, r, &createUserRequest, i.Logger)
+		errors := utils.ValidateBody(w, r, &signupRequest, i.Logger)
 		if len(errors) > 0 {
 			utils.Response(w, models.DevResponse{
 				StatusCode: http.StatusBadRequest,
@@ -55,7 +56,7 @@ func (i *IUsersController) CreateUser(ctx context.Context) http.HandlerFunc {
 			return
 		}
 
-		emailValidation := utils.ValidateEmail(createUserRequest.Email)
+		emailValidation := utils.ValidateEmail(signupRequest.Email)
 		if len(emailValidation) > 0 {
 			utils.Response(w, models.DevResponse{
 				StatusCode: http.StatusBadRequest,
@@ -67,7 +68,7 @@ func (i *IUsersController) CreateUser(ctx context.Context) http.HandlerFunc {
 			return
 		}
 
-		passwordValidation := utils.ValidatePassword(createUserRequest.Password, createUserRequest.RetypedPassword)
+		passwordValidation := utils.ValidatePassword(signupRequest.Password, signupRequest.RetypedPassword)
 		if len(passwordValidation) > 0 {
 			utils.Response(w, models.DevResponse{
 				StatusCode: http.StatusBadRequest,
@@ -79,18 +80,43 @@ func (i *IUsersController) CreateUser(ctx context.Context) http.HandlerFunc {
 			return
 		}
 
-		var run models.DevResponse = i.UserUseCase.CreateUser(ctx, createUserRequest)
+		var run models.DevResponse = i.UserUseCase.CreateUser(ctx, signupRequest)
 
 		utils.Response(w, run)
 	}
 }
 
-// GetUserByEmail implements repositories.UserController.
-func (i *IUsersController) GetUserByEmail() http.HandlerFunc {
-	panic("unimplemented")
+// GetUserByID implements repositories.UserController.
+func (i *IUsersController) GetUserByID(ctx context.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		userID := r.PathValue("user_id")
+		if userID == "" {
+			utils.Response(w, models.DevResponse{
+				StatusCode: http.StatusBadRequest,
+				Response: models.Response400WithResult{
+					Message: constants.REQUEST_INVALID,
+					Details: []string{"User ID is required"},
+				},
+			})
+			return
+		}
+
+		var run models.DevResponse = i.UserUseCase.GetUserByID(ctx, userID)
+
+		utils.Response(w, run)
+	}
 }
 
-// GetUserByID implements repositories.UserController.
-func (i *IUsersController) GetUserByID() http.HandlerFunc {
-	panic("unimplemented")
+// GetUserByJWT implements repositories.UserController.
+func (i *IUsersController) GetUserByJWT() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var ctx context.Context = r.Context()
+		var userData utils.ResultFirebase = middlewares.GetUserDataFromContext(ctx)
+
+		i.Logger.Info("User data: ", userData)
+
+		var run models.DevResponse = i.UserUseCase.GetUserByID(ctx, userData.TokenData.UID)
+
+		utils.Response(w, run)
+	}
 }

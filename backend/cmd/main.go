@@ -108,12 +108,21 @@ func setupRoutes(
 		httpSwagger.URL("/swagger/doc.json"), //The url pointing to API definition
 	))
 
+	router.HandleFunc("POST /api/v1/users", usersController.SingUp(ctx))
+	logger.Info("POST /api/v1/users endpoint created")
+
+	router.HandleFunc("GET /api/v1/users/byJWT", func(w http.ResponseWriter, r *http.Request) {
+		authorizerMiddleware.Authorizer(usersController.GetUserByJWT()).ServeHTTP(w, r)
+	})
+	logger.Info("GET /api/v1/users/byJWT endpoint created")
+
+	router.HandleFunc("GET /api/v1/users/{user_id}", func(w http.ResponseWriter, r *http.Request) {
+		authorizerMiddleware.Authorizer(usersController.GetUserByID(ctx)).ServeHTTP(w, r)
+	})
+	logger.Info("GET /api/v1/users/{user_id} endpoint created")
+
 	router.HandleFunc("POST /api/v1/sell", func(w http.ResponseWriter, r *http.Request) {
 		authorizerMiddleware.Authorizer(sellController.Sell()).ServeHTTP(w, r)
 	})
 	logger.Info("POST /api/v1/sell endpoint created")
-
-	router.HandleFunc("POST /api/v1/users", usersController.CreateUser(ctx))
-	logger.Info("POST /api/v1/users endpoint created")
-
 }
