@@ -96,3 +96,95 @@ func (i *IBondsUseCase) CreateBond(payload repositories.CreateBondRequest, userI
 	}
 
 }
+
+// GetAllBonds implements repositories.BondUseCase.
+func (i *IBondsUseCase) GetAllBonds(userID string, bondType string) models.DevResponse {
+
+	if bondType != "SOLD" && bondType != "AVAILABLE" && bondType != "BOUGHT" {
+		return models.DevResponse{
+			StatusCode: http.StatusBadRequest,
+			Response: models.Response400WithResult{
+				Message: "Invalid bond type",
+				Details: []string{"Bond type must be SOLD, AVAILABLE or BOUGHT"},
+			},
+		}
+	}
+
+	if bondType == "AVAILABLE" {
+
+		i.Logger.Info("=======================================================> AVAILABLE BONDS")
+
+		bonds, err := i.bondRepository.GetAllAvailableBonds(userID)
+		if err != nil {
+			i.Logger.Error("Error getting all available bonds. ", err)
+			return models.DevResponse{
+				StatusCode: http.StatusInternalServerError,
+				Response: models.Response500WithResult{
+					Message: "ErrorGettingAllAvailableBonds",
+				},
+			}
+		}
+
+		var bondModels []repositories.BondModel
+		for _, bond := range bonds {
+			bondModels = append(bondModels, repositories.BondModel{
+				BondID:            bond.BondID,
+				Seller:            bond.Seller,
+				Name:              bond.Name,
+				TotalQuantity:     bond.TotalQuantity,
+				Price:             bond.Price,
+				AvailableQuantity: bond.AvailableQuantity,
+			})
+		}
+
+		response200GetAllBonds := repositories.GetAllBondsResponse200{
+			Response: &models.Response{
+				Message: "Bonds retrieved",
+			},
+			Result: repositories.GetAllBondsResponse{
+				Bonds: bondModels,
+			},
+		}
+
+		return models.DevResponse{
+			StatusCode: http.StatusOK,
+			Response:   response200GetAllBonds,
+		}
+	}
+
+	bonds, err := i.bondRepository.GetAllBondsBySOLDAndBOUGHT(bondType)
+	if err != nil {
+		i.Logger.Error("Error getting all bonds by type. ", err)
+		return models.DevResponse{
+			StatusCode: http.StatusInternalServerError,
+			Response: models.Response500WithResult{
+				Message: "ErrorGettingAllBondsByType",
+			},
+		}
+	}
+
+	var bondModels []repositories.BondModel
+	for _, bond := range bonds {
+		bondModels = append(bondModels, repositories.BondModel{
+			BondID:            bond.ID,
+			Name:              bond.Name,
+			TotalQuantity:     bond.Quantity,
+			Price:             bond.Price,
+			AvailableQuantity: 0,
+		})
+	}
+
+	response200GetAllBonds := repositories.GetAllBondsResponse200{
+		Response: &models.Response{
+			Message: "Bonds retrieved",
+		},
+		Result: repositories.GetAllBondsResponse{
+			Bonds: bondModels,
+		},
+	}
+
+	return models.DevResponse{
+		StatusCode: http.StatusOK,
+		Response:   response200GetAllBonds,
+	}
+}

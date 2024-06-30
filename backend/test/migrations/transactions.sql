@@ -3,7 +3,7 @@ CREATE TABLE
         id UUID PRIMARY KEY,
         user_id VARCHAR(255) NOT NULL,
         bond_id UUID NOT NULL,
-        status ENUM ('BOUGHT', 'SOLD') NOT NULL,
+        status VARCHAR(20) NOT NULL,
         quantity INTEGER NOT NULL,
         price DECIMAL(14, 4) NOT NULL,
         created_at INTEGER NOT NULL,

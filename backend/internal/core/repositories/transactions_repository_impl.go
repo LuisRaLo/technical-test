@@ -37,7 +37,7 @@ func NewTransactionRepository(
 // Función para sincronizar la base de datos ejecutando un archivo SQL.
 func (i *ITransactionRepository) SyncDatabase() {
 	// Leer el contenido del archivo SQL
-	var filepath string = "test/migrations/transacctions.sql"
+	var filepath string = "test/migrations/transactions.sql"
 
 	file, err := os.Open(filepath)
 	if err != nil {

@@ -81,6 +81,72 @@
                 }
             }
         },
+        "/bonds/{type}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all bonds",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bonds"
+                ],
+                "summary": "Get all bonds",
+                "parameters": [
+                    {
+                        "enum": [
+                            "SOLD",
+                            "AVAILABLE",
+                            "BOUGHT"
+                        ],
+                        "type": "string",
+                        "description": "Type of bond",
+                        "name": "type",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/repositories.GetAllBondsResponse200"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response400WithResult"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response404WithResult"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response409WithResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response500WithResult"
+                        }
+                    }
+                }
+            }
+        },
         "/sell": {
             "post": {
                 "security": [
@@ -127,6 +193,69 @@
                         "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/models.Response404WithResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response500WithResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a transaction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Create a transaction",
+                "parameters": [
+                    {
+                        "description": "Bond object",
+                        "name": "bond",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/repositories.CreateBondRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/repositories.CreateBondResponse200"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response400WithResult"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response404WithResult"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response409WithResult"
                         }
                     },
                     "500": {
@@ -439,6 +568,37 @@
                 }
             }
         },
+        "repositories.BondModel": {
+            "type": "object",
+            "properties": {
+                "available_quantity": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "bond_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "name"
+                },
+                "price": {
+                    "type": "number",
+                    "example": 1
+                },
+                "seller": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "total_quantity": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
         "repositories.CreateBondRequest": {
             "type": "object",
             "required": [
@@ -492,6 +652,35 @@
                 },
                 "result": {
                     "$ref": "#/definitions/repositories.CreateBondResponse"
+                }
+            }
+        },
+        "repositories.GetAllBondsResponse": {
+            "type": "object",
+            "properties": {
+                "bonds": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/repositories.BondModel"
+                    }
+                }
+            }
+        },
+        "repositories.GetAllBondsResponse200": {
+            "type": "object",
+            "properties": {
+                "folio": {
+                    "type": "string",
+                    "format": "string",
+                    "example": ""
+                },
+                "mensaje": {
+                    "type": "string",
+                    "format": "string",
+                    "example": "Operación realizada con éxito"
+                },
+                "result": {
+                    "$ref": "#/definitions/repositories.GetAllBondsResponse"
                 }
             }
         },

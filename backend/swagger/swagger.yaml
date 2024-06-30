@@ -107,6 +107,29 @@ definitions:
         format: string
         type: string
     type: object
+  repositories.BondModel:
+    properties:
+      available_quantity:
+        example: 1
+        type: integer
+      bond_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        format: uuid
+        type: string
+      name:
+        example: name
+        type: string
+      price:
+        example: 1
+        type: number
+      seller:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        format: uuid
+        type: string
+      total_quantity:
+        example: 1
+        type: integer
+    type: object
   repositories.CreateBondRequest:
     properties:
       name:
@@ -148,6 +171,26 @@ definitions:
         type: string
       result:
         $ref: '#/definitions/repositories.CreateBondResponse'
+    type: object
+  repositories.GetAllBondsResponse:
+    properties:
+      bonds:
+        items:
+          $ref: '#/definitions/repositories.BondModel'
+        type: array
+    type: object
+  repositories.GetAllBondsResponse200:
+    properties:
+      folio:
+        example: ""
+        format: string
+        type: string
+      mensaje:
+        example: Operación realizada con éxito
+        format: string
+        type: string
+      result:
+        $ref: '#/definitions/repositories.GetAllBondsResponse'
     type: object
   repositories.SignUpRequest:
     properties:
@@ -259,6 +302,49 @@ paths:
       summary: Create a bond
       tags:
       - Bonds
+  /bonds/{type}:
+    get:
+      consumes:
+      - application/json
+      description: Get all bonds
+      parameters:
+      - description: Type of bond
+        enum:
+        - SOLD
+        - AVAILABLE
+        - BOUGHT
+        in: path
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repositories.GetAllBondsResponse200'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response400WithResult'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response404WithResult'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.Response409WithResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response500WithResult'
+      security:
+      - BearerAuth: []
+      summary: Get all bonds
+      tags:
+      - Bonds
   /sell:
     post:
       consumes:
@@ -295,6 +381,46 @@ paths:
       summary: Sell a bound
       tags:
       - Sell
+  /transactions:
+    post:
+      consumes:
+      - application/json
+      description: Create a transaction
+      parameters:
+      - description: Bond object
+        in: body
+        name: bond
+        required: true
+        schema:
+          $ref: '#/definitions/repositories.CreateBondRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repositories.CreateBondResponse200'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response400WithResult'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response404WithResult'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.Response409WithResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response500WithResult'
+      security:
+      - BearerAuth: []
+      summary: Create a transaction
+      tags:
+      - Transactions
   /users:
     post:
       consumes:

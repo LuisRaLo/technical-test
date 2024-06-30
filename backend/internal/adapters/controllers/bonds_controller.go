@@ -64,3 +64,30 @@ func (i *IBondsController) CreateBond() http.HandlerFunc {
 		utils.Response(w, run)
 	}
 }
+
+// GetAllBonds implements repositories.BondController.
+// @Summary      Get all bonds
+// @Description  Get all bonds
+// @Tags        Bonds
+// @Accept       json
+// @Produce      json
+// @Param        type path string true "Type of bond" Enums(SOLD, AVAILABLE, BOUGHT)
+// @Success      200  {object} repositories.GetAllBondsResponse200
+// @Failure      400  {object} models.Response400WithResult
+// @Failure      404  {object}  models.Response404WithResult
+// @Failure      409  {object}  models.Response409WithResult
+// @Failure      500  {object}  models.Response500WithResult
+// @Router      /bonds/{type} [get]
+// @Security    BearerAuth
+func (i *IBondsController) GetAllBonds() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var ctx context.Context = r.Context()
+		var userData utils.ResultFirebase = middlewares.GetUserDataFromContext(ctx)
+
+		bondType := r.PathValue("type")
+
+		var run models.DevResponse = i.bondUseCase.GetAllBonds(userData.TokenData.UID, bondType)
+
+		utils.Response(w, run)
+	}
+}

@@ -65,19 +65,22 @@ func main() {
 	//REPOSITORIES
 	usersRepository := repositoriesImpl.NewUsersRepository(logger, database1Connection)
 	bondsRepository := repositoriesImpl.NewBondRepository(logger, database1Connection)
+	transactionsRepository := repositoriesImpl.NewTransactionRepository(logger, database1Connection)
 
 	//USE CASES
 	var sellUseCase domain.SellUseCase = application.NewSellUseCase(logger, bondsRepository)
 	var usersUseCase repositories.UserUseCase = application.NewUsersUseCase(logger, usersRepository, firebaseConnection)
 	var bondUseCase repositories.BondUseCase = application.NewBondsUseCase(logger, bondsRepository, firebaseConnection)
+	var transactionsUseCase repositories.TransactionsUseCase = application.NewTransactionsUseCase(logger, transactionsRepository)
 
 	//CONTROLLERS
 	var sellController domain.SellController = controllers.NewSellController(logger, sellUseCase)
 	var usersController repositories.UserController = controllers.NewUsersController(logger, usersUseCase)
 	var bondController repositories.BondController = controllers.NewBondsController(logger, bondUseCase)
+	var transactionsController repositories.TransactionsController = controllers.NewTransactionsController(logger, transactionsUseCase)
 
 	//ROUTES
-	setupRoutes(ctx, logger, mux, sellController, usersController, bondController)
+	setupRoutes(ctx, logger, mux, sellController, usersController, bondController, transactionsController)
 
 	//SERVER
 	logger.Info("Server running on port 8080")
@@ -99,6 +102,7 @@ func setupRoutes(
 	sellController domain.SellController,
 	usersController repositories.UserController,
 	bondsController repositories.BondController,
+	transactionsController repositories.TransactionsController,
 ) {
 	//usersEndpointPath := os.Getenv("USERS_ENDPOINT_PATH")
 
@@ -136,5 +140,10 @@ func setupRoutes(
 		authorizerMiddleware.Authorizer(bondsController.CreateBond()).ServeHTTP(w, r)
 	})
 	logger.Info("POST /api/v1/bonds endpoint created")
+
+	router.HandleFunc("GET /api/v1/bonds/{type}", func(w http.ResponseWriter, r *http.Request) {
+		authorizerMiddleware.Authorizer(bondsController.GetAllBonds()).ServeHTTP(w, r)
+	})
+	logger.Info("GET /api/v1/bonds/{type} endpoint created")
 
 }

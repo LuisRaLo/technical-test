@@ -19,6 +19,15 @@ type (
 		DeleteAt  int64     `json:"delete_at" example:"1618312800"`
 	}
 
+	BondModel struct {
+		BondID            uuid.UUID `json:"bond_id" example:"550e8400-e29b-41d4-a716-446655440000" format:"uuid"`
+		Seller            string    `json:"seller" example:"550e8400-e29b-41d4-a716-446655440000" format:"uuid"`
+		Name              string    `json:"name" example:"name"`
+		TotalQuantity     int       `json:"total_quantity" example:"1"`
+		Price             float64   `json:"price" example:"1.0000"`
+		AvailableQuantity int       `json:"available_quantity" example:"1"`
+	}
+
 	CreateBondRequest struct {
 		Name     string  `json:"name" example:"name" validate:"required,min=3,max=40,alphanum"`
 		Quantity int     `json:"quantity" example:"1" validate:"required,min=1,max=10000"`
@@ -34,6 +43,15 @@ type (
 		Result CreateBondResponse `json:"result"`
 	}
 
+	GetAllBondsResponse struct {
+		Bonds []BondModel `json:"bonds"`
+	}
+
+	GetAllBondsResponse200 struct {
+		*models.Response
+		Result GetAllBondsResponse `json:"result"`
+	}
+
 	BondRepository interface {
 		CreateBond(bond Bond) int
 		UpdateBond(bond Bond) int
@@ -41,13 +59,17 @@ type (
 		GetBondByID(id uuid.UUID) (Bond, error)
 		IsExistBond(name string, price float64, quantity int) bool
 		GetAllBonds() ([]Bond, error)
+		GetAllBondsBySOLDAndBOUGHT(bondType string) ([]Bond, error)
+		GetAllAvailableBonds(userID string) ([]BondModel, error)
 	}
 
 	BondUseCase interface {
 		CreateBond(bond CreateBondRequest, userID string) models.DevResponse
+		GetAllBonds(userID string, bondType string) models.DevResponse
 	}
 
 	BondController interface {
 		CreateBond() http.HandlerFunc
+		GetAllBonds() http.HandlerFunc
 	}
 )
