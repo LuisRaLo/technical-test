@@ -19,7 +19,6 @@ func Connection(
 	dbname string,
 	sslmode string,
 ) (*sql.DB, error) {
-	//"postgres://username:password@host:port/dbname?sslmode=disable")
 	portInt, err := strconv.Atoi(port)
 	if err != nil {
 		logger.Errorln("error converting port to integer: %v", err)

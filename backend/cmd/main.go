@@ -64,18 +64,20 @@ func main() {
 
 	//REPOSITORIES
 	usersRepository := repositoriesImpl.NewUsersRepository(logger, database1Connection)
-	bondRepository := repositoriesImpl.NewBondRepository(logger, database1Connection)
+	bondsRepository := repositoriesImpl.NewBondRepository(logger, database1Connection)
 
 	//USE CASES
-	var sellUseCase domain.SellUseCase = application.NewSellUseCase(logger, bondRepository)
+	var sellUseCase domain.SellUseCase = application.NewSellUseCase(logger, bondsRepository)
 	var usersUseCase repositories.UserUseCase = application.NewUsersUseCase(logger, usersRepository, firebaseConnection)
+	var bondUseCase repositories.BondUseCase = application.NewBondsUseCase(logger, bondsRepository, firebaseConnection)
 
 	//CONTROLLERS
 	var sellController domain.SellController = controllers.NewSellController(logger, sellUseCase)
 	var usersController repositories.UserController = controllers.NewUsersController(logger, usersUseCase)
+	var bondController repositories.BondController = controllers.NewBondsController(logger, bondUseCase)
 
 	//ROUTES
-	setupRoutes(ctx, logger, mux, sellController, usersController)
+	setupRoutes(ctx, logger, mux, sellController, usersController, bondController)
 
 	//SERVER
 	logger.Info("Server running on port 8080")
@@ -96,6 +98,7 @@ func setupRoutes(
 	router *http.ServeMux,
 	sellController domain.SellController,
 	usersController repositories.UserController,
+	bondsController repositories.BondController,
 ) {
 	//usersEndpointPath := os.Getenv("USERS_ENDPOINT_PATH")
 
@@ -108,6 +111,7 @@ func setupRoutes(
 		httpSwagger.URL("/swagger/doc.json"), //The url pointing to API definition
 	))
 
+	//USERS
 	router.HandleFunc("POST /api/v1/users", usersController.SingUp(ctx))
 	logger.Info("POST /api/v1/users endpoint created")
 
@@ -121,8 +125,16 @@ func setupRoutes(
 	})
 	logger.Info("GET /api/v1/users/{user_id} endpoint created")
 
+	//SELL
 	router.HandleFunc("POST /api/v1/sell", func(w http.ResponseWriter, r *http.Request) {
 		authorizerMiddleware.Authorizer(sellController.Sell()).ServeHTTP(w, r)
 	})
 	logger.Info("POST /api/v1/sell endpoint created")
+
+	//BONDS
+	router.HandleFunc("POST /api/v1/bonds", func(w http.ResponseWriter, r *http.Request) {
+		authorizerMiddleware.Authorizer(bondsController.CreateBond()).ServeHTTP(w, r)
+	})
+	logger.Info("POST /api/v1/bonds endpoint created")
+
 }

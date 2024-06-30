@@ -78,6 +78,17 @@ definitions:
         format: string
         type: string
     type: object
+  models.Response409WithResult:
+    properties:
+      folio:
+        example: ""
+        format: string
+        type: string
+      mensaje:
+        example: Operación realizada sin éxito
+        format: string
+        type: string
+    type: object
   models.Response500WithResult:
     properties:
       detalles:
@@ -95,6 +106,48 @@ definitions:
         example: Operación fallida
         format: string
         type: string
+    type: object
+  repositories.CreateBondRequest:
+    properties:
+      name:
+        example: name
+        maxLength: 40
+        minLength: 3
+        type: string
+      price:
+        example: 1
+        maximum: 100000000
+        minimum: 0.0001
+        type: number
+      quantity:
+        example: 1
+        maximum: 10000
+        minimum: 1
+        type: integer
+    required:
+    - name
+    - price
+    - quantity
+    type: object
+  repositories.CreateBondResponse:
+    properties:
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        format: uuid
+        type: string
+    type: object
+  repositories.CreateBondResponse200:
+    properties:
+      folio:
+        example: ""
+        format: string
+        type: string
+      mensaje:
+        example: Operación realizada con éxito
+        format: string
+        type: string
+      result:
+        $ref: '#/definitions/repositories.CreateBondResponse'
     type: object
   repositories.SignUpRequest:
     properties:
@@ -166,6 +219,46 @@ info:
   title: Swagger Technical Challenge API
   version: "1.0"
 paths:
+  /bonds:
+    post:
+      consumes:
+      - application/json
+      description: Create a bond
+      parameters:
+      - description: Bond object
+        in: body
+        name: bond
+        required: true
+        schema:
+          $ref: '#/definitions/repositories.CreateBondRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repositories.CreateBondResponse200'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response400WithResult'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response404WithResult'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.Response409WithResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response500WithResult'
+      security:
+      - BearerAuth: []
+      summary: Create a bond
+      tags:
+      - Bonds
   /sell:
     post:
       consumes:

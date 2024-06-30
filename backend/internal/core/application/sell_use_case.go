@@ -11,18 +11,18 @@ import (
 )
 
 type ISellUseCase struct {
-	Logger          *zap.SugaredLogger
-	boundRepository repositories.BoundRepository
+	Logger         *zap.SugaredLogger
+	bondRepository repositories.BondRepository
 }
 
 func NewSellUseCase(
 	logger *zap.SugaredLogger,
-	boundRepository repositories.BoundRepository,
+	bondRepository repositories.BondRepository,
 ) domain.SellUseCase {
 	logger.Info("SellUseCase created")
 	return &ISellUseCase{
-		Logger:          logger,
-		boundRepository: boundRepository,
+		Logger:         logger,
+		bondRepository: bondRepository,
 	}
 }
 
@@ -31,7 +31,7 @@ func (i *ISellUseCase) Sell(useID string, request domain.SellRequest) models.Dev
 	var sellResponse domain.SellResponse = domain.SellResponse{}
 
 	//generate a random id
-	boundId := uuid.New().String()
+	bondId := uuid.New().String()
 
 	//TODO: comprobar que el usuario este dentro de las txs permitidas
 	//TODO: comprobar que el usuario tenga el saldo suficiente
@@ -44,7 +44,7 @@ func (i *ISellUseCase) Sell(useID string, request domain.SellRequest) models.Dev
 	//TODO: guardar la venta
 
 	//creamos respuesta exitosa
-	sellResponse.Result.ID = boundId
+	sellResponse.Result.ID = bondId
 
 	return models.DevResponse{
 		StatusCode: http.StatusOK,

@@ -24,6 +24,69 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/bonds": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a bond",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bonds"
+                ],
+                "summary": "Create a bond",
+                "parameters": [
+                    {
+                        "description": "Bond object",
+                        "name": "bond",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/repositories.CreateBondRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/repositories.CreateBondResponse200"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response400WithResult"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response404WithResult"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response409WithResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response500WithResult"
+                        }
+                    }
+                }
+            }
+        },
         "/sell": {
             "post": {
                 "security": [
@@ -342,6 +405,21 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Response409WithResult": {
+            "type": "object",
+            "properties": {
+                "folio": {
+                    "type": "string",
+                    "format": "string",
+                    "example": ""
+                },
+                "mensaje": {
+                    "type": "string",
+                    "format": "string",
+                    "example": "Operación realizada sin éxito"
+                }
+            }
+        },
         "models.Response500WithResult": {
             "type": "object",
             "properties": {
@@ -364,6 +442,62 @@ const docTemplate = `{
                     "type": "string",
                     "format": "string",
                     "example": "Operación fallida"
+                }
+            }
+        },
+        "repositories.CreateBondRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "price",
+                "quantity"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 40,
+                    "minLength": 3,
+                    "example": "name"
+                },
+                "price": {
+                    "type": "number",
+                    "maximum": 100000000,
+                    "minimum": 0.0001,
+                    "example": 1
+                },
+                "quantity": {
+                    "type": "integer",
+                    "maximum": 10000,
+                    "minimum": 1,
+                    "example": 1
+                }
+            }
+        },
+        "repositories.CreateBondResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                }
+            }
+        },
+        "repositories.CreateBondResponse200": {
+            "type": "object",
+            "properties": {
+                "folio": {
+                    "type": "string",
+                    "format": "string",
+                    "example": ""
+                },
+                "mensaje": {
+                    "type": "string",
+                    "format": "string",
+                    "example": "Operación realizada con éxito"
+                },
+                "result": {
+                    "$ref": "#/definitions/repositories.CreateBondResponse"
                 }
             }
         },
