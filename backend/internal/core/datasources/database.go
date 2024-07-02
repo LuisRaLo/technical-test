@@ -31,15 +31,15 @@ func Connection(
 		return nil, err
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	status := "up"
-	if err := db.PingContext(ctx); err != nil {
-		status = "down"
+	err = db.PingContext(ctx)
+	if err != nil {
+		return nil, err
 	}
-	logger.Infof("Database connection status: %s", status)
 
+	logger.Infoln("Database connection successful")
 	return db, nil
 
 }
