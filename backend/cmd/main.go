@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"os"
 
 	"technical-challenge/internal/adapters/controllers"
 	"technical-challenge/internal/core/application"
@@ -51,11 +52,13 @@ func main() {
 		logger.Error("Error creating logger")
 	}
 
+	logger.Info("Starting server with ENVIRONMENTS => ", os.Environ())
+
 	var mux *http.ServeMux = http.NewServeMux()
 	var ctx context.Context = context.Background()
 
 	//DATASOURCES
-	var database1Connection *sql.DB = datasources.Database1Connection(logger)
+	var database1Connection *sql.DB = datasources.Database1Connection(logger, ctx)
 	firebaseConnection, err := utils.GetFirebaseSession(ctx, logger)
 	if err != nil {
 		logger.Error("Error getting firebase session")

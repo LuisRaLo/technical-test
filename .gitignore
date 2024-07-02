@@ -2,7 +2,10 @@
 
 # ENV Files
 .env
-.env.*
+.env.local
+.env.development
+.env.test
+.env.production
 
 # Go binaries for programs and plugins
 bootstrap

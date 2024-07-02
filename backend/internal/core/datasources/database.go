@@ -1,8 +1,9 @@
 package datasources
 
 import (
+	"context"
 	"fmt"
-	"strconv"
+	"time"
 
 	"database/sql"
 
@@ -11,6 +12,7 @@ import (
 )
 
 func Connection(
+	ctx context.Context,
 	logger *zap.SugaredLogger,
 	host string,
 	port string,
@@ -19,24 +21,25 @@ func Connection(
 	dbname string,
 	sslmode string,
 ) (*sql.DB, error) {
-	portInt, err := strconv.Atoi(port)
+	connStr := fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s connect_timeout=10 sslmode=%s",
+		host, port, dbname, user, password, sslmode)
+
+	logger.Infoln("Connecting to database with connection string: %s", connStr)
+
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		logger.Errorln("error converting port to integer: %v", err)
 		return nil, err
 	}
 
-	db, err := sql.Open("postgres", fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s", host, portInt, user, password, dbname, sslmode))
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
 
-	if err != nil {
-		logger.Errorln("error connecting to database: %v", err)
-		return nil, err
+	status := "up"
+	if err := db.PingContext(ctx); err != nil {
+		status = "down"
 	}
+	logger.Infof("Database connection status: %s", status)
 
-	if err := db.Ping(); err != nil {
-		logger.Errorln("Database connection failed: %v", err)
-		return nil, err
-	}
-	logger.Infoln("Database connection successful")
 	return db, nil
 
 }

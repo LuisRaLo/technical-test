@@ -1,15 +1,10 @@
 version: "3.9"
 
-services:
-  backend:
-    build: ./backend
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-    networks:
-      - default
+networks:
+  myapp:
+    driver: bridge
 
+services:
   db:
     image: postgres:latest
     restart: always
@@ -17,27 +12,34 @@ services:
       POSTGRES_DB: mydatabase
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
+      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
-      - default
+      - myapp
+
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - myapp
 
   frontend:
     build: ./frontend
     ports:
       - "3000:3000"
+    environment:
+      REACT_APP_BACKEND_URL: "http://localhost:8000"
     depends_on:
       - backend
     networks:
-      - default
+      - myapp
 
 volumes:
   postgres-data:
     driver: local
-
-networks:
-  default:
-    external:
-      name: mynetwork

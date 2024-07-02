@@ -4,11 +4,13 @@ FROM golang:1.22.4 AS builder
 WORKDIR /app
 
 COPY ./go.mod ./go.sum ./
+COPY ./.env ./.env
 
 RUN go mod download
 
 COPY ./cmd ./cmd
 COPY ./internal ./internal
+COPY ./swagger ./swagger
 COPY ./test ./test
 
 RUN GOOS=linux CGO_ENABLED=0 go build -o bootstrap ./cmd
