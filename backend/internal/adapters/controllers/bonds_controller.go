@@ -91,3 +91,40 @@ func (i *IBondsController) GetAllBonds() http.HandlerFunc {
 		utils.Response(w, run)
 	}
 }
+
+// SellBond implements repositories.BondController.
+// Sell a bound
+// @Summary      Sell a bound
+// @Description  Sell a bound
+// @Tags         Sell
+// @Accept       json
+// @Produce      json
+// @Param        sellRequest body domain.SellBondRequest true "Sell Request"
+// @Success      200  {object}  domain.SellBondResponse200
+// @Failure      400  {object} models.Response400WithResult
+// @Failure      404  {object}  models.Response404WithResult
+// @Failure      500  {object}  models.Response500WithResult
+// @Router      /bonds/sell [post]
+// @Security BearerAuth
+func (i *IBondsController) SellBond() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var ctx context.Context = r.Context()
+		var payload repositories.SellBondRequest = repositories.SellBondRequest{}
+		var userData utils.ResultFirebase = middlewares.GetUserDataFromContext(ctx)
+
+		errors := utils.ValidateBody(w, r, &payload, i.Logger)
+		if len(errors) > 0 {
+			utils.Response(w, models.DevResponse{
+				StatusCode: http.StatusBadRequest,
+				Response: models.Response400WithResult{
+					Message: constants.REQUEST_INVALID,
+					Details: errors,
+				},
+			})
+			return
+		}
+
+		var run models.DevResponse = i.bondUseCase.SellBond(payload, userData.TokenData.UID)
+		utils.Response(w, run)
+	}
+}

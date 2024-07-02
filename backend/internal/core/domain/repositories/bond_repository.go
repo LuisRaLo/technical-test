@@ -28,6 +28,15 @@ type (
 		AvailableQuantity int       `json:"available_quantity" example:"1"`
 	}
 
+	BondSoldAndBought struct {
+		ID            string  `json:"id"`
+		Name          string  `json:"name"`
+		Currency      string  `json:"currency"`
+		NumerOfBonds  int     `json:"number_of_bonds"`
+		TotalPrice    float64 `json:"total_price"`
+		SellerOrBuyer string  `json:"seller_or_buyer"`
+	}
+
 	CreateBondRequest struct {
 		Name     string  `json:"name" example:"name" validate:"required,min=3,max=40,alphanum"`
 		Quantity int     `json:"quantity" example:"1" validate:"required,min=1,max=10000"`
@@ -47,29 +56,56 @@ type (
 		Bonds []BondModel `json:"bonds"`
 	}
 
+	GetAllBondsSoldAndBoughtResponse struct {
+		Bonds []BondSoldAndBought `json:"bonds"`
+	}
+
 	GetAllBondsResponse200 struct {
 		*models.Response
 		Result GetAllBondsResponse `json:"result"`
 	}
 
+	GetAllBondsSoldAndBoughtResponse200 struct {
+		*models.Response
+		Result GetAllBondsSoldAndBoughtResponse `json:"result"`
+	}
+
+	SellBondRequest struct {
+		BondID   uuid.UUID `json:"bond_id" example:"550e8400-e29b-41d4-a716-446655440000" format:"uuid" validate:"required,uuid"`
+		Quantity int       `json:"quantity" example:"1" validate:"required,min=1,max=10000"`
+	}
+
+	SellBondResponse struct {
+		ID uuid.UUID `json:"id" example:"550e8400-e29b-41d4-a716-446655440000" format:"uuid"`
+	}
+
+	SellBondResponse200 struct {
+		*models.Response
+		Result SellBondResponse `json:"result"`
+	}
+
 	BondRepository interface {
 		CreateBond(bond Bond) int
 		UpdateBond(bond Bond) int
-		DeleteBond(bond Bond) int
+		DeleteBond(id uuid.UUID) (int, error)
 		GetBondByID(id uuid.UUID) (Bond, error)
 		IsExistBond(name string, price float64, quantity int) bool
 		GetAllBonds() ([]Bond, error)
-		GetAllBondsBySOLDAndBOUGHT(bondType string) ([]Bond, error)
+		GetBondsSoldAndBought(userID string) ([]BondSoldAndBought, error)
 		GetAllAvailableBonds(userID string) ([]BondModel, error)
+		GetBondsByUserID(userID string) ([]Bond, error)
+		GetBondByIDAndQuantity(id uuid.UUID, quantity int) (BondModel, error)
 	}
 
 	BondUseCase interface {
 		CreateBond(bond CreateBondRequest, userID string) models.DevResponse
 		GetAllBonds(userID string, bondType string) models.DevResponse
+		SellBond(bond SellBondRequest, userID string) models.DevResponse
 	}
 
 	BondController interface {
 		CreateBond() http.HandlerFunc
 		GetAllBonds() http.HandlerFunc
+		SellBond() http.HandlerFunc
 	}
 )

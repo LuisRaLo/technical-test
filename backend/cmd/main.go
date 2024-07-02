@@ -9,7 +9,6 @@ import (
 	"technical-challenge/internal/adapters/controllers"
 	"technical-challenge/internal/core/application"
 	"technical-challenge/internal/core/datasources"
-	"technical-challenge/internal/core/domain"
 	"technical-challenge/internal/core/domain/repositories"
 	repositoriesImpl "technical-challenge/internal/core/repositories"
 	"technical-challenge/internal/middlewares"
@@ -68,19 +67,15 @@ func main() {
 	transactionsRepository := repositoriesImpl.NewTransactionRepository(logger, database1Connection)
 
 	//USE CASES
-	var sellUseCase domain.SellUseCase = application.NewSellUseCase(logger, bondsRepository)
 	var usersUseCase repositories.UserUseCase = application.NewUsersUseCase(logger, usersRepository, firebaseConnection)
-	var bondUseCase repositories.BondUseCase = application.NewBondsUseCase(logger, bondsRepository, firebaseConnection)
-	var transactionsUseCase repositories.TransactionsUseCase = application.NewTransactionsUseCase(logger, transactionsRepository)
+	var bondUseCase repositories.BondUseCase = application.NewBondsUseCase(logger, bondsRepository, transactionsRepository, usersRepository)
 
 	//CONTROLLERS
-	var sellController domain.SellController = controllers.NewSellController(logger, sellUseCase)
 	var usersController repositories.UserController = controllers.NewUsersController(logger, usersUseCase)
 	var bondController repositories.BondController = controllers.NewBondsController(logger, bondUseCase)
-	var transactionsController repositories.TransactionsController = controllers.NewTransactionsController(logger, transactionsUseCase)
 
 	//ROUTES
-	setupRoutes(ctx, logger, mux, sellController, usersController, bondController, transactionsController)
+	setupRoutes(ctx, logger, mux, usersController, bondController)
 
 	//SERVER
 	logger.Info("Server running on port 8080")
@@ -99,10 +94,9 @@ func setupRoutes(
 	ctx context.Context,
 	logger *zap.SugaredLogger,
 	router *http.ServeMux,
-	sellController domain.SellController,
 	usersController repositories.UserController,
 	bondsController repositories.BondController,
-	transactionsController repositories.TransactionsController,
+
 ) {
 	//usersEndpointPath := os.Getenv("USERS_ENDPOINT_PATH")
 
@@ -129,12 +123,6 @@ func setupRoutes(
 	})
 	logger.Info("GET /api/v1/users/{user_id} endpoint created")
 
-	//SELL
-	router.HandleFunc("POST /api/v1/sell", func(w http.ResponseWriter, r *http.Request) {
-		authorizerMiddleware.Authorizer(sellController.Sell()).ServeHTTP(w, r)
-	})
-	logger.Info("POST /api/v1/sell endpoint created")
-
 	//BONDS
 	router.HandleFunc("POST /api/v1/bonds", func(w http.ResponseWriter, r *http.Request) {
 		authorizerMiddleware.Authorizer(bondsController.CreateBond()).ServeHTTP(w, r)
@@ -145,5 +133,10 @@ func setupRoutes(
 		authorizerMiddleware.Authorizer(bondsController.GetAllBonds()).ServeHTTP(w, r)
 	})
 	logger.Info("GET /api/v1/bonds/{type} endpoint created")
+
+	router.HandleFunc("POST /api/v1/bonds/sell", func(w http.ResponseWriter, r *http.Request) {
+		authorizerMiddleware.Authorizer(bondsController.SellBond()).ServeHTTP(w, r)
+	})
+	logger.Info("POST /api/v1/bonds/sell endpoint created")
 
 }
