@@ -49,7 +49,7 @@ type (
 
 	CreateBondResponse200 struct {
 		*models.Response
-		Result CreateBondResponse `json:"result"`
+		Result CreateBondResponse `json:"resultado"`
 	}
 
 	GetAllBondsResponse struct {
@@ -62,12 +62,12 @@ type (
 
 	GetAllBondsResponse200 struct {
 		*models.Response
-		Result GetAllBondsResponse `json:"result"`
+		Result GetAllBondsResponse `json:"resultado"`
 	}
 
 	GetAllBondsSoldAndBoughtResponse200 struct {
 		*models.Response
-		Result GetAllBondsSoldAndBoughtResponse `json:"result"`
+		Result GetAllBondsSoldAndBoughtResponse `json:"resultado"`
 	}
 
 	SellBondRequest struct {
@@ -81,7 +81,7 @@ type (
 
 	SellBondResponse200 struct {
 		*models.Response
-		Result SellBondResponse `json:"result"`
+		Result SellBondResponse `json:"resultado"`
 	}
 
 	BondRepository interface {
